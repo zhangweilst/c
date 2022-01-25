@@ -5,7 +5,7 @@
 
 void reverse(char s[]);
 
-/* reverse */
+/* reverses input a line at a time */
 int main()
 {
     int len;

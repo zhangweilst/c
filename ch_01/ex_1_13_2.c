@@ -13,7 +13,8 @@ int main()
 
     while ((c = getchar()) != EOF) {
         if (c == ' ' || c == '\n' || c == '\t') {
-            if (prev_c != ' ' && prev_c != '\n' && prev_c != '\t' && prev_c != EOF) {
+            if (prev_c != ' ' && prev_c != '\n' &&
+                prev_c != '\t' && prev_c != EOF) {
                 if (length <= MAX_LENGTH) {
                     lengths[length - 1]++;
                     length = 0;
@@ -24,7 +25,8 @@ int main()
         }
         prev_c = c;
     }
-    if (prev_c != ' ' && prev_c != '\n' && prev_c != '\t' && prev_c != EOF)
+    if (prev_c != ' ' && prev_c != '\n' &&
+        prev_c != '\t' && prev_c != EOF)
         lengths[length >= MAX_LENGTH ? MAX_LENGTH - 1 : length]++;
 
     int max_length = 0;

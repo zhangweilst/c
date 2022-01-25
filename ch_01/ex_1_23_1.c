@@ -17,9 +17,7 @@ int state = CODE;
 
 void remove_comment_state_machine(char c);
 
-/* 
-   remove C comment
- */
+/* remove C comment */
 int main()
 {
     char c;

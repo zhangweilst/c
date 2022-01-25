@@ -9,8 +9,7 @@
   compile with:
   gcc ch01.c ex_01_16_1.c -o ex_01_16_1
 
- */
-
+*/
 int main()
 {
     int len, prev_len;

@@ -1,7 +1,8 @@
 #include <stdio.h>
 
+/* print the value of EOF */
 int main()
 {
-    printf("EOF = %d\n", EOF);
+    printf("Value of EOF: %d\n", EOF);
 }
 

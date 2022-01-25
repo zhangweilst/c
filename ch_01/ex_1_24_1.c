@@ -25,9 +25,7 @@ void push(char c);
 char pop();
 void rudimentary_c_state_machine(char c);
 
-/* 
-   rudimentary syntax errors check 
- */
+/* rudimentary syntax errors check */
 int main()
 {
     char c;

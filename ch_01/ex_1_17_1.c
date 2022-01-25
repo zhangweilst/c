@@ -5,7 +5,6 @@
 #define THRESHOLD 80
 
 /* print all input lines longer than 80 characters */
-
 int main()
 {
     int len, prev_len;

@@ -10,3 +10,4 @@ main)
 error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ before ‘)’ token
 
 */
+

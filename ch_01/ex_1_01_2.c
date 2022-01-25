@@ -4,7 +4,6 @@ int main()
     printf("hello, world\n");
 }
 
-
 /*
 
 We left out the #include <stdio.h> part. Surprisingly at first, this code can

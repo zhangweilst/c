@@ -4,7 +4,6 @@
 #define MAXLINE 1000
 
 /* remove trailing blanks */
-
 int main()
 {
     int len;
@@ -12,10 +11,13 @@ int main()
 
     while ((len = getline_r(line, MAXLINE)) > 0) {
         int i;
-        for (i = len - 1; i >= 0 && (line[i] == ' ' || line[i] == '\t' || line[i] == '\n'); --i) {
+        for (i = len - 1; i >= 0 &&
+            (line[i] == ' ' || line[i] == '\t' || line[i] == '\n'); --i) {
             line[i] = '\0';
         }
-        printf("%s\n", line);
+        if (i >= 0) {
+            printf("%s\n", line);
+        }
     }
     return 0;
 }

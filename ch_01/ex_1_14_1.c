@@ -2,7 +2,7 @@
 
 #define MAX_CHAR 128
 
-/* histogram of frequencies of ascii characters */
+/* histogram of frequencies of ascii characters, vertical version */
 int main()
 {
     int c;
