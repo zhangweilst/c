@@ -15,7 +15,7 @@ int main()
     return 0;
 }
 
-/* getint: get next integer from input to *pn */
+/* getfloat: get next float from input to *pn */
 int getfloat(double *pn)
 {
     double power, exponent, exponent_power;
