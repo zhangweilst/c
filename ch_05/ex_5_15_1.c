@@ -132,6 +132,7 @@ int numcmp(const char *s1, const char *s2)
 
 #include <ctype.h>
 
+/* strcmp_f: strcmp with fold flag */
 int strcmp_f(const char *s1, const char *s2)
 {
     for (; tolower(*s1) == tolower(*s2); s1++, s2++) {
@@ -142,6 +143,7 @@ int strcmp_f(const char *s1, const char *s2)
     return tolower(*s1) - tolower(*s2);
 }
 
+/* swap: swap position i and j in v */
 void swap(void *v[], int i, int j)
 {
     void *temp;
