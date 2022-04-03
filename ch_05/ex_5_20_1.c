@@ -8,6 +8,7 @@ enum {NAME, PARENS, BRACKETS };
 
 int dcl(void);
 int dirdcl(void);
+int ptl(void);
 
 int gettoken(void);
 int getch(void);
@@ -20,7 +21,7 @@ char name[MAXTOKEN];        /* identifier name */
 char datatype[MAXTOKEN];    /* data type = char, int, etc. */
 char out[1000];             /* output string */
 
-/* being able to recover from input error */
+/* being able to handle function arguments type and qualifiers */
 int main()
 {
     while (gettoken() != EOF) {
@@ -33,7 +34,15 @@ int main()
             clearup();
             continue;
         }
-        strcpy(datatype, token);
+        *datatype = '\0';
+        while (!strcmp(token, "const") || !strcmp(token, "volatile")) {
+            strcat(datatype, token);
+            strcat(datatype, " ");
+            if (gettoken() == EOF) {
+                return 0;
+            }
+        }
+        strcat(datatype, token);
         out[0] = '\0';
         if (dcl()) {
             printf("error in dcl\n");
@@ -85,14 +94,37 @@ int dirdcl(void)
         printf("error: expected name or (dcl)\n");
         return 1;
     }
-    while ((type = gettoken()) == PARENS || type == BRACKETS) {
-        if (type == PARENS) {
-            strcat(out, " function returning");
+    while ((type = gettoken()) == BRACKETS || type == '(') {
+        if (type == '(') {
+            // function
+            strcat(out, " function with arguments type (");
+            ptl();
+            strcat(out, ") returning");
         } else {
             strcat(out, " array");
             strcat(out, token);
             strcat(out, " of");
         }
+    }
+    return 0;
+}
+
+/* ptl: parse a parameter type list, just print as is version */
+int ptl(void)
+{
+    int depth = 0, c;
+    char *p;
+    while ((c = getch()) != ')' || depth > 0) {
+        p = token;
+        if (c == '(') {
+            ++depth;
+        }
+        if (c == ')') {
+            --depth;
+        }
+        *p++ = c;
+        *p = '\0';
+        strcat(out, token);
     }
     return 0;
 }
@@ -105,15 +137,7 @@ int gettoken(void)
     char *p = token;
 
     while ((c = getch()) == ' ' || c == '\t');
-    if (c == '(') {
-        if ((c = getch()) == ')') {
-            strcpy(token, "()");
-            return tokentype = PARENS;
-        } else {
-            ungetch(c);
-            return tokentype = '(';
-        }
-    } else if (c == '[') {
+    if (c == '[') {
         for (*p++ = c; (*p++ = getch()) != ']';);
         *p = '\0';
         return tokentype = BRACKETS;
