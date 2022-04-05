@@ -4,7 +4,7 @@
 
 #define MAXTOKEN 100
 
-enum {NAME, PARENS, BRACKETS };
+enum { NAME, PARENS, BRACKETS };
 
 int dcl(void);
 int dirdcl(void);
