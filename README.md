@@ -1,6 +1,6 @@
 # About
 
-The C Programming Language 2nd Edition Exercises
+The C Programming Language 2nd Edition Exercises (Brian Kernighan & Dennis Ritchie)
 
 Still in progress :)
 
