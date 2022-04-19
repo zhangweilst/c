@@ -22,6 +22,7 @@ typedef struct _iobuf {
 static const struct _flags _rd_flag = {1, 0, 0, 0, 0};
 static const struct _flags _wr_flag = {0, 1, 0, 0, 0};
 static const struct _flags _wr_unbuf_flag = {0, 1, 1, 0, 0};
+static const struct _flags _unused_flag = {0, 0, 0, 0, 0};
 
 FILE _iob[OPEN_MAX] = {
     {0, (char *) 0, (char *) 0, _rd_flag, 0},
@@ -35,6 +36,7 @@ FILE _iob[OPEN_MAX] = {
 
 int _fillbuf(FILE *);
 int _flushbuf(int, FILE *);
+int fflush(FILE *);
 
 #define feof(p)     ((p)->flag._EOF)
 #define ferror(p)   ((p)->flag._ERR)
@@ -120,8 +122,104 @@ int _fillbuf(FILE *fp)
     return (unsigned char) *fp->ptr++;
 }
 
+/* _flushbuf: allocate and flush output buffer */
+int _flushbuf(int c, FILE *fp)
+{
+    int bufsize;
+
+    if (!(fp->flag._WRITE & ~fp->flag._EOF & ~fp->flag._ERR)) {
+        return EOF;
+    }
+    bufsize = fp->flag._UNBUF ? 1 : BUFSIZ;
+    if (fp->base != NULL) {
+        fp->ptr = fp->base;
+        fp->cnt = write(fp->fd, fp->ptr, bufsize);
+    }
+    if (fp->base == NULL) {
+        if ((fp->ptr = fp->base = (char *) malloc(bufsize * sizeof(char))) == NULL) {
+            return EOF;
+        }
+        fp->cnt = bufsize;
+    }
+    if (--fp->cnt != bufsize - 1) {
+        fp->flag._ERR = 1;
+        fp->cnt = 0;
+        return EOF;
+    }
+    return (unsigned char) (*fp->ptr++ = c);
+}
+
+int _fflush(FILE *fp)
+{
+    if (fp->flag._ERR | fp->flag._EOF) {
+        return EOF;
+    }
+    if (fp->flag._WRITE && !fp->flag._UNBUF && fp->base != NULL) {
+        int size = BUFSIZ - fp->cnt;
+        if (write(fp->fd, fp->base, size) != size) {
+            return EOF;
+        } else {
+            fp->ptr = fp->base;
+            fp->cnt = BUFSIZ;
+            return 0;
+        }
+    }
+    return 0;
+}
+
+/* fflush: flush output buffer to file */
+int fflush(FILE *fp)
+{
+    int i;
+    int _fflush(FILE *);
+
+    if (fp == NULL) {
+        for (i = 0; i < OPEN_MAX; ++i) {
+            if (_fflush(&_iob[i]) != 0) {
+                return EOF;
+            }
+        }
+        return 0;
+    }
+    return _fflush(fp);
+}
+
+/* fclose: close file pointed by fp */
+int fclose(FILE *fp)
+{
+    if (!fp->flag._READ && !fp->flag._WRITE) {
+        return 0;
+    }
+    if (fflush(fp) != 0) {
+        return EOF;
+    }
+    fp->cnt = 0;
+    if (fp->base != NULL) {
+        free(fp->base);
+    }
+    fp->ptr = NULL;
+    fp->flag = _unused_flag;
+    return close(fp->fd);
+}
+
+/* cat: with customed stdio */
 int main(int argc, char *argv[])
 {
+    FILE *fp;
+    int c;
+
+    if (argc == 2) {
+        if ((fp = fopen(*++argv, "r")) == NULL) {
+            return 1;
+        }
+    } else {
+        fp = stdin;
+    }
+
+    while ((c = getc(fp)) != EOF) {
+        putc(c, stdout);
+    }
+    fclose(stdout);
     return 0;
 }
 
