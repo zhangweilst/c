@@ -97,13 +97,13 @@ int _fillbuf(FILE *fp)
 {
     int bufsize;
 
-    if (!(fp->flag._READ & ~fp->flag._EOF & ~fp->flag._ERR)) {
-        return EOF;
+    if (!(fp->flag._READ && !fp->flag._EOF && !fp->flag._ERR)) {
+        return -1;
     }
     bufsize = fp->flag._UNBUF ? 1 : BUFSIZ;
     if (fp->base == NULL) {
         if ((fp->base = (char *) malloc(bufsize * sizeof(char))) == NULL) {
-            return EOF;
+            return -1;
         }
     }
     fp->ptr = fp->base;
@@ -115,7 +115,7 @@ int _fillbuf(FILE *fp)
             fp->flag._ERR = 1;
         }
         fp->cnt = 0;
-        return EOF;
+        return -1;
     }
     return (unsigned char) *fp->ptr++;
 }

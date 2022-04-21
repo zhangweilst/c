@@ -36,7 +36,10 @@ FILE _iob[OPEN_MAX] = {
 
 int _fillbuf(FILE *);
 int _flushbuf(int, FILE *);
+int _fflush(FILE *);
 int fflush(FILE *);
+int fclose(FILE *);
+int fseek(FILE *, long, int);
 
 #define feof(p)     ((p)->flag._EOF)
 #define ferror(p)   ((p)->flag._ERR)
@@ -152,7 +155,7 @@ int _flushbuf(int c, FILE *fp)
 int _fflush(FILE *fp)
 {
     if (fp->flag._ERR) {
-        return EOF;
+        return -1;
     }
     if (fp->flag._WRITE && !fp->flag._UNBUF && fp->base != NULL) {
         int size = BUFSIZ - fp->cnt;
@@ -202,11 +205,41 @@ int fclose(FILE *fp)
     return close(fp->fd);
 }
 
-/* cat: with customed stdio */
+/* fseek: lseek for FILE * */
+int fseek(FILE *fp, long offset, int origin)
+{
+    if (!fp->flag._READ && !fp->flag._WRITE) {
+        return -1;
+    }
+    if (fp->flag._ERR) {
+        return -1;
+    }
+    if (fp->flag._UNBUF) {
+        if (lseek(fp->fd, offset, origin) != -1) {
+            fp->flag._EOF = 0;
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+    if (fflush(fp)) {
+        return -1;
+    }
+    int gap = (origin == 1 && fp->flag._READ && fp->base) ?
+        fp->ptr - fp->base : 0;
+    if (lseek(fp->fd, offset, origin) != -1) {
+        fp->flag._EOF = 0;
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     FILE *fp;
     int c;
+    void filecopy(FILE *, FILE *);
 
     if (argc == 2) {
         if ((fp = fopen(*++argv, "r")) == NULL) {
@@ -216,10 +249,31 @@ int main(int argc, char *argv[])
         fp = stdin;
     }
 
-    while ((c = getc(fp)) != EOF) {
-        putc(c, stdout);
-    }
+    filecopy(fp, stdout);
+    putchar('\n');
+
+    fseek(fp, 10L, 0);
+    filecopy(fp, stdout);
+    putchar('\n');
+
+    fseek(fp, 0L, 0);
+    fseek(fp, 10L, 1);
+    filecopy(fp, stdout);
+    putchar('\n');
+
+    fseek(fp, -10L, 2);
+    filecopy(fp, stdout);
+
     fclose(stdout);
     return 0;
+}
+
+void filecopy(FILE *ifp, FILE *ofp)
+{
+    int c;
+
+    while ((c = getc(ifp)) != EOF) {
+        putc(c, ofp);
+    }
 }
 
