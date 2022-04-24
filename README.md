@@ -16,4 +16,4 @@ If you find the code cannot compile or run on your platfrom, welcome to submit a
 
 # Questions
 
-Any questions or suggestions, please file an issue or email me at zhangweilst@126.com
+Any questions or suggestions, please file an issue or email me at zhangweilst@gmail.com
